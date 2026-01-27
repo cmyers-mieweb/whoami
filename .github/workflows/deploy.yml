@@ -1,0 +1,48 @@
+name: Deploy WhoAmI
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  # naming this 'deploy-app' ensures your action runs the "Manage Container" logic
+  # NOT the "Create Runner" logic.
+  deploy-app:
+    runs-on: ubuntu-latest
+    name: Deploy Application
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: LaunchPad Deploy
+        # Point this to your action repository
+        uses: mieweb/launchpad@cmyers_issue3
+        with:
+          # --- API Config ---
+          api_key: ${{ secrets.API_KEY }}
+          api_url: ${{ secrets.API_URL }}
+          #github_pat: ${{ secrets.GITHUB_PAT }}
+          
+          # --- Container Config ---
+          # Assuming your API uses a Linux template (e.g., Ubuntu/Debian)
+          template_name: "ubuntu-22.04-standard" 
+          
+          # 'whoami' is a Go app. We need to ensure Go is installed 
+          # before building, unless your template already has it.
+          install_command: "apt-get update && apt-get install -y golang"
+          
+          # Build the Go binary
+          build_command: "go build -o whoami ."
+          
+          # Start the app on port 80 (standard for whoami)
+          start_command: "./whoami --port 80"
+          
+          # Optional: Define language if your API uses it for logic
+          runtime_language: "go"
+          
+          # Optional: environment variables
+          container_env_vars: '{"WHOAMI_NAME": "LaunchPad-Test"}'
