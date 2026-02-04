@@ -25,7 +25,7 @@ jobs:
           # --- API Config ---
           api_key: ${{ secrets.API_KEY }}
           api_url: ${{ secrets.API_URL }}
-          #github_pat: ${{ secrets.GITHUB_PAT }}
+          github_pat: ${{ secrets.GH_PAT }}
           
           # --- Container Config ---
           # Assuming your API uses a Linux template (e.g., Ubuntu/Debian)
