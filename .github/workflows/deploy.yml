@@ -20,7 +20,7 @@ jobs:
 
       - name: LaunchPad Deploy
         # Point this to your action repository
-        uses: mieweb/launchpad@cmyers_issue3
+        uses: mieweb/launchpad@main
         with:
           # --- API Config ---
           api_key: ${{ secrets.API_KEY }}
