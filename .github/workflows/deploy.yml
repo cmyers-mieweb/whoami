@@ -46,3 +46,6 @@ jobs:
           
           # Optional: environment variables
           container_env_vars: '{"WHOAMI_NAME": "LaunchPad-Test"}'
+
+          deploy_on_start: "true"
+          container_domain: "sequence-column-contributor-floors.trycloudflare.com"
