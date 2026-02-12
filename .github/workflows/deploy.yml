@@ -30,23 +30,45 @@ jobs:
           # 2. Build the Go binary
           build_command: "go build -o whoami ."
           
-          # 3. Configure Apache & Start App
-          # This script does 4 things:
-          # A. Enables Apache proxy modules
-          # B. Configures Apache to listen on Port 80 and forward to Port 8080
-          # C. Restarts Apache to apply changes
-          # D. Starts the Go app on Port 8080 in the foreground (keeping the container alive)
+          # 3. Configure Apache & Systemd
+          # This script does 3 things:
+          # A. Sets up Apache Reverse Proxy
+          # B. Creates a Systemd service for the Go app (so it runs in background & restarts on crash)
+          # C. Starts both services and EXITS cleanly so the deployment job succeeds.
           start_command: |
+            # --- A. Apache Config ---
             a2enmod proxy proxy_http
             echo '<VirtualHost *:80>
                 ProxyPreserveHost On
                 ProxyPass / http://127.0.0.1:8080/
                 ProxyPassReverse / http://127.0.0.1:8080/
             </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+
+            # --- B. Systemd Service Config ---
+            # We use $(pwd) to ensure it points to where the repo was cloned
+            cat <<EOF > /etc/systemd/system/whoami.service
+            [Unit]
+            Description=WhoAmI Go App
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=$(pwd)
+            ExecStart=$(pwd)/whoami --port 8080
+            Restart=always
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+
+            # --- C. Start Services ---
+            systemctl daemon-reload
+            systemctl enable whoami
+            systemctl restart whoami
             service apache2 restart
-            ./whoami --port 8080
           
           runtime_language: "go"
           container_env_vars: '{"WHOAMI_NAME": "LaunchPad-Apache-Proxy"}'
           deploy_on_start: "true"
-          container_domain: "sequence-column-contributor-floors.trycloudflare.com"
+          container_domain: "meditation-products-acceptable-consultant.trycloudflare.com"
