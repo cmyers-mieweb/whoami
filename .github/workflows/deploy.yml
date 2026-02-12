@@ -29,7 +29,7 @@ jobs:
           
           # --- Container Config ---
           # Assuming your API uses a Linux template (e.g., Ubuntu/Debian)
-          template_name: "debian-template" 
+          template_name: "opensource-cmyers,101" 
           
           # 'whoami' is a Go app. We need to ensure Go is installed 
           # before building, unless your template already has it.
