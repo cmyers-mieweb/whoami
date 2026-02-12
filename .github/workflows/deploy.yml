@@ -32,7 +32,7 @@ jobs:
           template_name: "opensource-cmyers,101" 
           
           # 'whoami' is a Go app. We need to ensure Go is installed 
-          # before building, unless your template already has it.
+          # before building, unless your template already has it. (It does not by default)
           install_command: "apt-get update && apt-get install -y golang"
           
           # Build the Go binary
