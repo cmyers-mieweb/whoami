@@ -3,14 +3,9 @@ name: Deploy WhoAmI
 on:
   push:
     branches: [ "master", "main" ]
-  pull_request:
-    branches: [ "master", "main" ]
-  # Allow manual trigger for testing
   workflow_dispatch:
 
 jobs:
-  # naming this 'deploy-app' ensures your action runs the "Manage Container" logic
-  # NOT the "Create Runner" logic.
   deploy-app:
     runs-on: ubuntu-latest
     name: Deploy Application
@@ -19,7 +14,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: LaunchPad Deploy
-        # Point this to your action repository
         uses: mieweb/launchpad@cmyers_issue3
         with:
           # --- API Config ---
@@ -28,24 +22,31 @@ jobs:
           github_pat: ${{ secrets.GH_PAT }}
           
           # --- Container Config ---
-          # Assuming your API uses a Linux template (e.g., Ubuntu/Debian)
           template_name: "opensource-cmyers,101" 
           
-          # 'whoami' is a Go app. We need to ensure Go is installed 
-          # before building, unless your template already has it. (It does not by default)
-          install_command: "apt-get update && apt-get install -y golang"
+          # 1. Install Go and Apache2
+          install_command: "apt-get update && apt-get install -y golang apache2"
           
-          # Build the Go binary
+          # 2. Build the Go binary
           build_command: "go build -o whoami ."
           
-          # Start the app on port 80 (standard for whoami)
-          start_command: "./whoami --port 80"
+          # 3. Configure Apache & Start App
+          # This script does 4 things:
+          # A. Enables Apache proxy modules
+          # B. Configures Apache to listen on Port 80 and forward to Port 8080
+          # C. Restarts Apache to apply changes
+          # D. Starts the Go app on Port 8080 in the foreground (keeping the container alive)
+          start_command: |
+            a2enmod proxy proxy_http
+            echo '<VirtualHost *:80>
+                ProxyPreserveHost On
+                ProxyPass / http://127.0.0.1:8080/
+                ProxyPassReverse / http://127.0.0.1:8080/
+            </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+            service apache2 restart
+            ./whoami --port 8080
           
-          # Optional: Define language if your API uses it for logic
           runtime_language: "go"
-          
-          # Optional: environment variables
-          container_env_vars: '{"WHOAMI_NAME": "LaunchPad-Test"}'
-
+          container_env_vars: '{"WHOAMI_NAME": "LaunchPad-Apache-Proxy"}'
           deploy_on_start: "true"
           container_domain: "sequence-column-contributor-floors.trycloudflare.com"
