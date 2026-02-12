@@ -20,7 +20,7 @@ jobs:
 
       - name: LaunchPad Deploy
         # Point this to your action repository
-        uses: mieweb/launchpad@main
+        uses: mieweb/launchpad@cmyers_issue3
         with:
           # --- API Config ---
           api_key: ${{ secrets.API_KEY }}
@@ -29,7 +29,7 @@ jobs:
           
           # --- Container Config ---
           # Assuming your API uses a Linux template (e.g., Ubuntu/Debian)
-          template_name: "debian13-template" 
+          template_name: "debian-template" 
           
           # 'whoami' is a Go app. We need to ensure Go is installed 
           # before building, unless your template already has it.
