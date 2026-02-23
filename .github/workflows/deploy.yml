@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mieweb/launchpad@main
+      - uses: mieweb/launchpad:cmyers_issue5
         with:
           api_key: ${{ secrets.LAUNCHPAD_API_KEY }}
           api_url: ${{ secrets.LAUNCHPAD_API_URL }}
