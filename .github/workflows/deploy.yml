@@ -1,3 +1,4 @@
+# test PR deployment workflow
 name: Build and Deploy Preview
 
 on:
@@ -44,10 +45,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: mieweb/launchpad@main
+      - uses: mieweb/launchpad@cmyers_issue5 # attempting to use a branch for testing, will switch to main once verified
         with:
-          api_key: ${{ secrets.LAUNCHPAD_API_KEY }}
-          api_url: ${{ secrets.LAUNCHPAD_API_URL }}
+          api_key: ${{ secrets.API_KEY }}
+          api_url: ${{ secrets.API_URL }}
           template_name: ${{ env.REGISTRY }}/${{ github.repository }}:pr-${{ github.event.pull_request.number }}
 
   cleanup-preview:
